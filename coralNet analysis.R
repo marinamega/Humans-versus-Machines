@@ -1,26 +1,26 @@
 #################################################################
 #################################################################
-
+setwd('C:/Users/marin/Documents/R Arquivos/Dados Monografia/')
 library(tidyverse)
-source("functions/kappa_function.R")
+source("kappa_function.R")
 
 ### LENDO ARQUIVOS FONTE ###
 
-machine <- read.csv("data/EVSET_COM.csv", header=T, sep = ";", fileEncoding = 'WINDOWS-1252') %>% 
+machine <- read.csv("EVSET_COM.csv", header=T, sep = ",", fileEncoding = 'WINDOWS-1252') %>% 
   rename(label_com = Label,
          mfg_com = Functional.Group) %>% 
   mutate(label_com = recode(label_com, "CNA/CC" = "CNA_CC")) %>% 
   filter(!is.na(Year))
 
 
-autora <- read.csv("data/EVSET_AUT.csv", header=T, sep = ",", fileEncoding = 'WINDOWS-1252') %>% 
+autora <- read.csv("EVSET_AU.csv", header=T, sep = ",", fileEncoding = 'WINDOWS-1252') %>% 
   rename(label_aut = Label,
          mfg_aut = Functional.Group) %>% 
   mutate(label_aut = recode(label_aut, "CNA/CC" = "CNA_CC")) %>% 
   filter(!is.na(Year))
 
 
-expert <- read.csv("data/EVSET_EXP.csv", header=T, sep = ";", fileEncoding = 'WINDOWS-1252') %>% 
+expert <- read.csv("EVSET_EXP.csv", header=T, sep = ",", fileEncoding = 'WINDOWS-1252') %>% 
   rename(label_exp = Label,
          mfg_exp = Functional.Group) %>% 
   mutate(label_exp = recode(label_exp, "CNA/CC" = "CNA_CC")) %>% 
@@ -166,82 +166,198 @@ kappa_figs %>%
 #############
 ## PLOT (FAZER UM PRA CADA TIPO DE DEFEITO)
 
+fill_labels <- c("0" = "with no imperfections", "1" = "with imperfections")
+
 # suspension
 suspension <- kappa_figs %>%
+  filter(source != 'aut.com') %>% 
   mutate(source = factor(source, levels = c("exp.aut", "exp.com", "aut.com"))) %>% 
   select(estimate, source, shadow:filed_loss) %>% 
   na.omit() %>% 
-  ggplot(aes(color = as.factor(suspension), y = estimate, x = source)) +
-    geom_jitter(alpha = 0.5, position = position_dodge(width=0.7)) +
-    geom_boxplot(alpha = 0.4) +
-    theme_classic() +
-    theme(legend.title = element_blank()) +
-    labs(x = "", y = "Kappa", title = "Suspension")
+  ggplot(aes(fill = as.factor(suspension), y = estimate, x = source)) +
+  geom_jitter(alpha = 0.5, position = position_dodge(width=0.7), color = "black", show.legend = FALSE) +
+  geom_boxplot(alpha = 0.6, color = "black", size = 0.6, show.legend = FALSE) +
+  scale_fill_grey(start = 0.2, end = 0.8) + # mais contraste
+  scale_x_discrete(labels = c("exp.aut" = "manual", "exp.com" = "automatic")) +
+  theme_classic(base_size = 12, base_family = "Arial") +
+  theme(legend.title = element_blank()) +
+  labs(x = "", y = "Cohen's kappa", title = "a) suspension *")
 
-# water_glin
-water_glin <- kappa_figs %>%
+sun_glint <- kappa_figs %>%
+  filter(source != 'aut.com') %>% 
   mutate(source = factor(source, levels = c("exp.aut", "exp.com", "aut.com"))) %>% 
   select(estimate, source, shadow:filed_loss) %>% 
   na.omit() %>% 
-  ggplot(aes(color = as.factor(water_glin), y = estimate, x = source)) + 
-    geom_jitter(alpha = 0.5, position = position_dodge(width=0.7)) +
-    geom_boxplot(alpha = 0.4) +
-    theme_classic() +
-    theme(legend.title = element_blank()) +
-    labs(x = "", y = "Kappa", title = "Water glin")
+  ggplot(aes(fill = as.factor(water_glin), y = estimate, x = source)) +
+  geom_jitter(alpha = 0.5, position = position_dodge(width=0.7), color = "black", show.legend = FALSE) +
+  geom_boxplot(alpha = 0.6, color = "black", size = 0.6, show.legend = FALSE) +
+  scale_fill_grey(start = 0.2, end = 0.8) + # mais contraste
+  scale_x_discrete(labels = c("exp.aut" = "manual", "exp.com" = "automatic")) +
+  theme_classic(base_size = 12, base_family = "Arial") +
+  theme(legend.title = element_blank()) +
+  labs(x = "", y = "Cohen's kappa", title = "b) sun glint *")
 
-# overexposure
 overexposure <- kappa_figs %>%
+  filter(source != 'aut.com') %>% 
   mutate(source = factor(source, levels = c("exp.aut", "exp.com", "aut.com"))) %>% 
   select(estimate, source, shadow:filed_loss) %>% 
   na.omit() %>% 
-  ggplot(aes(color = as.factor(overexposure), y = estimate, x = source)) +
-    geom_jitter(alpha = 0.5, position = position_dodge(width=0.7)) +
-    geom_boxplot(alpha = 0.4) +
-    theme_classic() +
-    theme(legend.title = element_blank()) +
-    labs(x = "", y = "Kappa", title = "Overexposure")
+  ggplot(aes(fill = as.factor(overexposure), y = estimate, x = source)) +
+  geom_jitter(alpha = 0.5, position = position_dodge(width=0.7), color = "black", show.legend = FALSE) +
+  geom_boxplot(alpha = 0.6, color = "black", size = 0.6, show.legend = FALSE) +
+  scale_fill_grey(start = 0.2, end = 0.8) + # mais contraste
+  scale_x_discrete(labels = c("exp.aut" = "manual", "exp.com" = "automatic")) +
+  theme_classic(base_size = 12, base_family = "Arial") +
+  theme(legend.title = element_blank()) +
+  labs(x = "", y = "Cohen's kappa", title = "c) overexposure *")
 
-# unfocused
-unfocused <- kappa_figs %>%
-  mutate(source = factor(source, levels = c("exp.aut", "exp.com", "aut.com"))) %>% 
-  select(estimate, source, shadow:filed_loss) %>% 
-  na.omit() %>% 
-  ggplot(aes(color = as.factor(unfocused), y = estimate, x = source)) +
-    geom_jitter(alpha = 0.5, position = position_dodge(width=0.7)) +
-    geom_boxplot(alpha = 0.4) +
-    theme_classic() +
-    theme(legend.title = element_blank()) +
-    labs(x = "", y = "Kappa", title = "Unfocused")
-
-# parallax
 parallax <- kappa_figs %>%
+  filter(source != 'aut.com') %>% 
   mutate(source = factor(source, levels = c("exp.aut", "exp.com", "aut.com"))) %>% 
   select(estimate, source, shadow:filed_loss) %>% 
   na.omit() %>% 
-  ggplot(aes(color = as.factor(parallax), y = estimate, x = source)) +
-    geom_jitter(alpha = 0.5, position = position_dodge(width=0.7)) +
-    geom_boxplot(alpha = 0.4) +
-    theme_classic() +
-    theme(legend.title = element_blank()) +
-    labs(x = "", y = "Kappa", title = "Parallax")
+  ggplot(aes(fill = as.factor(parallax), y = estimate, x = source)) +
+  geom_jitter(alpha = 0.5, position = position_dodge(width=0.7), color = "black", show.legend = FALSE) +
+  geom_boxplot(alpha = 0.6, color = "black", size = 0.6, show.legend = FALSE) +
+  scale_fill_grey(start = 0.2, end = 0.8) + # mais contraste
+  scale_x_discrete(labels = c("exp.aut" = "manual", "exp.com" = "automatic")) +
+  theme_classic(base_size = 12, base_family = "Arial") +
+  theme(legend.title = element_blank()) +
+  labs(x = "", y = "Cohen's kappa", title = "d) parallax error *")
 
-# filed_loss
-filed_loss <- kappa_figs %>%
+unfocused <- kappa_figs %>%
+  filter(source != 'aut.com') %>% 
   mutate(source = factor(source, levels = c("exp.aut", "exp.com", "aut.com"))) %>% 
   select(estimate, source, shadow:filed_loss) %>% 
   na.omit() %>% 
-  ggplot(aes(color = as.factor(filed_loss), y = estimate, x = source)) +
-    geom_jitter(alpha = 0.5, position = position_dodge(width=0.7)) +
-    geom_boxplot(alpha = 0.4) +
-    theme_classic() +
-    theme(legend.title = element_blank()) +
-    labs(x = "", y = "Kappa", title = "Field loss")
+  ggplot(aes(fill = as.factor(unfocused), y = estimate, x = source)) +
+  geom_jitter(alpha = 0.5, position = position_dodge(width=0.7), color = "black", show.legend = FALSE) +
+  geom_boxplot(alpha = 0.6, color = "black", size = 0.6, show.legend = FALSE) +
+  scale_fill_grey(start = 0.2, end = 0.8) + # mais contraste
+  scale_x_discrete(labels = c("exp.aut" = "manual", "exp.com" = "automatic")) +
+  theme_classic(base_size = 12, base_family = "Arial") +
+  theme(legend.title = element_blank()) +
+  labs(x = "", y = "Cohen's kappa", title = "e) unfocus")
+
+shadow <- kappa_figs %>%
+  filter(source != 'aut.com') %>% 
+  mutate(source = factor(source, levels = c("exp.aut", "exp.com", "aut.com"))) %>% 
+  select(estimate, source, shadow:filed_loss) %>% 
+  na.omit() %>% 
+  ggplot(aes(fill = as.factor(shadow), y = estimate, x = source)) +
+  geom_jitter(alpha = 0.5, position = position_dodge(width=0.7), color = "black", show.legend = FALSE) +
+  geom_boxplot(alpha = 0.6, color = "black", size = 0.6, show.legend = FALSE) +
+  scale_fill_grey(start = 0.2, end = 0.8) + # mais contraste
+  scale_x_discrete(labels = c("exp.aut" = "manual", "exp.com" = "automatic")) +
+  theme_classic(base_size = 12, base_family = "Arial") +
+  theme(legend.title = element_blank()) +
+  labs(x = "", y = "Cohen's kappa", title = "f) shadow")
+
+distortion <- kappa_figs %>%
+  filter(source != 'aut.com') %>% 
+  mutate(source = factor(source, levels = c("exp.aut", "exp.com", "aut.com"))) %>% 
+  select(estimate, source, shadow:filed_loss) %>% 
+  na.omit() %>% 
+  ggplot(aes(fill = as.factor(distortion), y = estimate, x = source)) +
+  geom_jitter(alpha = 0.5, position = position_dodge(width=0.7), color = "black") +
+  geom_boxplot(alpha = 0.6, color = "black", size = 0.6) +
+  scale_fill_grey(start = 0.2, end = 0.8, labels = fill_labels) + # mais contraste
+  scale_x_discrete(labels = c("exp.aut" = "manual", "exp.com" = "automatic")) +
+  theme_classic(base_size = 12, base_family = "Arial") +
+  theme(legend.title = element_blank(),
+        legend.position = "right",
+        legend.text = element_text(family = "Arial", size = 10)) +
+  labs(x = "", y = "Cohen's kappa", title = "g) distortion")
+
+# # water_glin
+# water_glin <- kappa_figs %>%
+#   mutate(source = factor(source, levels = c("exp.aut", "exp.com", "aut.com"))) %>% 
+#   select(estimate, source, shadow:filed_loss) %>% 
+#   na.omit() %>% 
+#   ggplot(aes(color = as.factor(water_glin), y = estimate, x = source)) + 
+#     geom_jitter(alpha = 0.5, position = position_dodge(width=0.7)) +
+#     geom_boxplot(alpha = 0.4) +
+#     theme_classic() +
+#     theme(legend.title = element_blank()) +
+#     labs(x = "", y = "Kappa", title = "Water glin")
+# 
+# # overexposure
+# overexposure <- kappa_figs %>%
+#   mutate(source = factor(source, levels = c("exp.aut", "exp.com", "aut.com"))) %>% 
+#   select(estimate, source, shadow:filed_loss) %>% 
+#   na.omit() %>% 
+#   ggplot(aes(color = as.factor(overexposure), y = estimate, x = source)) +
+#     geom_jitter(alpha = 0.5, position = position_dodge(width=0.7)) +
+#     geom_boxplot(alpha = 0.4) +
+#     theme_classic() +
+#     theme(legend.title = element_blank()) +
+#     labs(x = "", y = "Kappa", title = "Overexposure")
+# 
+# # unfocused
+# unfocused <- kappa_figs %>%
+#   mutate(source = factor(source, levels = c("exp.aut", "exp.com", "aut.com"))) %>% 
+#   select(estimate, source, shadow:filed_loss) %>% 
+#   na.omit() %>% 
+#   ggplot(aes(color = as.factor(unfocused), y = estimate, x = source)) +
+#     geom_jitter(alpha = 0.5, position = position_dodge(width=0.7)) +
+#     geom_boxplot(alpha = 0.4) +
+#     theme_classic() +
+#     theme(legend.title = element_blank()) +
+#     labs(x = "", y = "Kappa", title = "Unfocused")
+# 
+# # parallax
+# parallax <- kappa_figs %>%
+#   mutate(source = factor(source, levels = c("exp.aut", "exp.com", "aut.com"))) %>% 
+#   select(estimate, source, shadow:filed_loss) %>% 
+#   na.omit() %>% 
+#   ggplot(aes(color = as.factor(parallax), y = estimate, x = source)) +
+#     geom_jitter(alpha = 0.5, position = position_dodge(width=0.7)) +
+#     geom_boxplot(alpha = 0.4) +
+#     theme_classic() +
+#     theme(legend.title = element_blank()) +
+#     labs(x = "", y = "Kappa", title = "Parallax")
+# 
+# # filed_loss
+# filed_loss <- kappa_figs %>%
+#   mutate(source = factor(source, levels = c("exp.aut", "exp.com", "aut.com"))) %>% 
+#   select(estimate, source, shadow:filed_loss) %>% 
+#   na.omit() %>% 
+#   ggplot(aes(color = as.factor(filed_loss), y = estimate, x = source)) +
+#     geom_jitter(alpha = 0.5, position = position_dodge(width=0.7)) +
+#     geom_boxplot(alpha = 0.4) +
+#     theme_classic() +
+#     theme(legend.title = element_blank()) +
+#     labs(x = "", y = "Kappa", title = "Field loss")
 
 ## juntar tudo
 library(patchwork)
 
-(suspension + water_glin + overexposure) / (unfocused + parallax + filed_loss)
+final_fig <- (suspension + sun_glint) /
+  (overexposure + parallax) /
+  (unfocused + shadow) /
+  (distortion + plot_spacer()) +
+  plot_layout(guides = "collect") &
+  theme(legend.position = "bottom")
+
+
+ggsave("Fig1.eps", final_fig, 
+       width = 6.85,    # largura 2 colunas
+       height = 9.21,   # altura máxima permitida
+       units = "in", 
+       device = cairo_ps)  # EPS vetorial
+
+ggsave("Fig1_manuscript.png", final_fig,
+       width = 6.85,
+       height = 9.21,
+       units = "in",
+       dpi = 300)
+
+ggsave("Fig1_manuscript.tiff", final_fig,
+       width = 6.85,      # largura 2 colunas
+       height = 9.21,     # altura máxima permitida
+       units = "in",
+       dpi = 300,         # resolução suficiente para revisão
+       compression = "lzw")
 
 #################################################################
 #################################################################
@@ -261,33 +377,105 @@ kappa_func(tudo, "ZOS")
 ### TODOS OS GRUPOS
 
 output <- data.frame()
-for(i in c("ARC", "BRSP", "CAUV", "CNA_CC", "TFL", "ZOS", "OMFC", "OMFL2", "POA", "SARG", "SID", "TCC")) {
+for(i in c("ARC", "BRSP", "CAUV", "CNA_CC", "TFL", "ZOS", "POA", "SARG", "SID", "DICT")) {
   result <- kappa_func(df = tudo, i) 
   output <- rbind(output, result) 
 }
 
 ### Graficos comparacao performance ###
-output %>% 
+
+shape_values <- c("exp.aut" = 24,   # triângulo
+                  "exp.com" = 21,   # círculo
+                  "aut.com" = 22)   # quadrado
+
+fill_values <- c("exp.aut" = "#619CFF",
+                 "exp.com" = "#00BA38",
+                 "aut.com" = "#F8766D")
+
+fill_labels <- c("aut.com" = "between annotators", "exp.aut" = "manual's performance", 'exp.com' = "automatic's performance")
+
+library(showtext)
+
+# font_add("Arial", regular = "C:/Windows/Fonts/arial.ttf")
+showtext_auto() # Ativa o uso de showtext para renderizar o texto
+
+fig2<- output %>%
   bind_rows(
     bind_rows(kappa_psy_exp.aut$confid %>% data.frame() %>% slice(2) %>% rownames_to_column(),
               kappa_psy_exp.com$confid %>% data.frame() %>% slice(2) %>% rownames_to_column(),
-              kappa_psy_aut.com$confid %>% data.frame() %>% slice(2) %>% rownames_to_column()) %>% 
+              kappa_psy_aut.com$confid %>% data.frame() %>% slice(2) %>% rownames_to_column()) %>%
       mutate(comparison = c("exp.aut", "exp.com", "aut.com"),
-             comparison = factor(comparison, levels = c("exp.aut", "exp.com", "aut.com"))) %>% 
-      select(-rowname) %>% 
+             comparison = factor(comparison, levels = c("exp.aut", "exp.com", "aut.com"))) %>%
+      select(-rowname) %>%
       mutate(label_taxa = "Total", Accuracy = NA, AccuracyPValue = NA, McnemarPValue = NA)
-  ) %>% 
-  mutate(label_taxa = factor(label_taxa, levels = output %>% 
-                               group_by(label_taxa) %>% 
-                               summarise(mean_k = mean(estimate)) %>% 
-                               arrange(-mean_k) %>% 
-                               pull(label_taxa) %>% 
-                               c("Total", .))) %>% 
-  ggplot(aes(x = label_taxa, y = estimate, color = comparison)) +
-    geom_point(position=position_dodge(width=0.7), size = 3) + #fill = "lightgray",
-    geom_errorbar(aes(ymin = lower, ymax = upper), position = position_dodge(width=0.7), width = 0) +
-    theme_classic() +
-    labs(x = "")
+  ) %>%
+  mutate(label_taxa = factor(label_taxa, levels = output %>%
+                               group_by(label_taxa) %>%
+                               summarise(mean_k = mean(estimate)) %>%
+                               arrange(-mean_k) %>%
+                               pull(label_taxa) %>%
+                               c("Total", .))) %>%
+  ggplot(aes(x = label_taxa, y = estimate, shape = comparison, fill = comparison)) +
+  geom_point(position = position_dodge(width = 0.7), size = 3, color = "black") +
+  geom_errorbar(aes(ymin = lower, ymax = upper),
+                position = position_dodge(width = 0.7), width = 0, color = "black") +
+  scale_shape_manual(
+    values = shape_values,
+    labels = c("exp.aut" = "manual's performance",
+               "exp.com" = "automatic's performance",
+               "aut.com" = "between annotators"),
+    name = NULL  # remove o título da legenda
+  ) +
+  scale_fill_manual(
+    values = fill_values,
+    labels = c("exp.aut" = "manual's performance",
+               "exp.com" = "automatic's performance",
+               "aut.com" = "between annotators"),
+    name = NULL  # remove o título da legenda
+  ) +
+  theme_classic(base_size = 12, , base_family = "Arial") + # Removido base_family aqui
+  theme(
+    axis.text.x = element_text(angle = 90, hjust = 1, family = "arial"), # Usa a fonte sans-serif
+    text = element_text(family = "arial"),
+    legend.position = "bottom",
+    legend.spacing = unit(0, "pt"),                  # remove espaçamento entre legendas se houver múltiplas linhas
+    legend.margin = margin(t = 0, r = 0, b = 0, l = 0), # espaço acima da legenda
+    plot.margin   = margin(t = 10, r = 10, b = 0, l = 10) # espaço mínimo inferior do plot
+  ) +
+  # theme(
+  #   axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5), # Usa a fonte sans-serif
+  #   legend.position = "bottom",
+  #   axis.text = element_text(size = 28),
+  #   legend.text = element_text(size = 28),
+  #   axis.title = element_text(size = 36))+
+  labs(x = '', y = "Cohen's kappa") +
+  scale_x_discrete(labels = c(
+    "CAUV" = expression(italic("Caulerpa verticillata")),
+    "SID" = expression(italic("Siderastrea")~"spp."),
+    "SARG" = expression(italic("Sargassum")~"spp."),
+    "ARC" = expression("substrate"),
+    "BRSP" = expression(italic("Bryopsis")~"spp."),
+    "POA" = expression(italic("Porites astreoides")),
+    "ZOS" = expression(italic("Zoanthus sociatus")),
+    "TFL" = expression("filamentous Turf"),
+    "DICT" = expression(italic("Dictyota")~"spp."),
+    "CNA_CC" = expression("crustose calcareous algae"),
+    "Total" = "Total"
+  ))
+
+ggsave("Fig2.eps", fig2, 
+       width = 6.85,
+       height = 7,  
+       units = "in", 
+       device = cairo_ps)  # EPS vetorial
+
+ggsave("Fig2_manuscript_png.png", fig2,
+       width = 6.85,
+       height = 7,
+       units = "in",
+       dpi = 300,
+       scale = 1
+)
 
 total_df <- bind_rows(
   kappa_psy_exp.aut$confid %>% data.frame() %>% slice(2) %>% rownames_to_column(),
@@ -321,27 +509,104 @@ for(i in c("CORAL", "MCO", "MCR", "MFC", "MFL", "SUB", "TURF", "ZOANT")) {
 }
 
 ### Graficos comparacao performance ###
-output_mfg %>% 
+fig1<- output_mfg %>%
   bind_rows(
     bind_rows(kappa_psy_exp.aut$confid %>% data.frame() %>% slice(2) %>% rownames_to_column(),
               kappa_psy_exp.com$confid %>% data.frame() %>% slice(2) %>% rownames_to_column(),
-              kappa_psy_aut.com$confid %>% data.frame() %>% slice(2) %>% rownames_to_column()) %>% 
+              kappa_psy_aut.com$confid %>% data.frame() %>% slice(2) %>% rownames_to_column()) %>%
       mutate(comparison = c("exp.aut", "exp.com", "aut.com"),
-             comparison = factor(comparison, levels = c("exp.aut", "exp.com", "aut.com"))) %>% 
-      select(-rowname) %>% 
+             comparison = factor(comparison, levels = c("exp.aut", "exp.com", "aut.com"))) %>%
+      select(-rowname) %>%
       mutate(mfg = "Total", Accuracy = NA, AccuracyPValue = NA, McnemarPValue = NA)
-  ) %>% 
-  mutate(mfg = factor(mfg, levels = output_mfg %>% 
-                        group_by(mfg) %>% 
-                        summarise(mean_k = mean(estimate)) %>% 
-                        arrange(-mean_k) %>% 
-                        pull(mfg)%>% 
-                        c("Total", .))) %>% 
-  ggplot(aes(x = mfg, y = estimate, color = comparison)) +
-  geom_point(position=position_dodge(width=0.7), size = 3) + #fill = "lightgray",
-  geom_errorbar(aes(ymin = lower, ymax = upper), position = position_dodge(width=0.7), width = 0) +
-  theme_classic() +
-  labs(x = "")
+  ) %>%
+  mutate(mfg = factor(mfg, levels = output_mfg %>%
+                               group_by(mfg) %>%
+                               summarise(mean_k = mean(estimate)) %>%
+                               arrange(-mean_k) %>%
+                               pull(mfg) %>%
+                               c("Total", .))) %>%
+  ggplot(aes(x = mfg, y = estimate, shape = comparison, fill = comparison)) +
+  geom_point(position = position_dodge(width = 0.7), size = 3, color = "black") +
+  geom_errorbar(aes(ymin = lower, ymax = upper),
+                position = position_dodge(width = 0.7), width = 0, color = "black") +
+  scale_shape_manual(
+    values = shape_values,
+    labels = c("exp.aut" = "manual's performance",
+               "exp.com" = "automatic's performance",
+               "aut.com" = "between annotators"),
+    name = NULL  # remove o título da legenda
+  ) +
+  scale_fill_manual(
+    values = fill_values,
+    labels = c("exp.aut" = "manual's performance",
+               "exp.com" = "automatic's performance",
+               "aut.com" = "between annotators"),
+    name = NULL  # remove o título da legenda
+  ) +
+  theme_classic(base_size = 12, , base_family = "Arial") + # Removido base_family aqui
+  # theme(
+  #   axis.text.x = element_text(angle = 90, hjust = 1, family = "arial"), # Usa a fonte sans-serif
+  #   text = element_text(family = "arial"),
+  #   legend.position = "bottom",
+  #   legend.spacing = unit(0, "pt"),                  # remove espaçamento entre legendas se houver múltiplas linhas
+  #   legend.margin = margin(t = 0, r = 0, b = 0, l = 0), # espaço acima da legenda
+  #   plot.margin   = margin(t = 10, r = 10, b = 0, l = 10) # espaço mínimo inferior do plot
+  # ) +
+  theme(
+    axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5), # Usa a fonte sans-serif
+    legend.position = "bottom",
+    axis.text = element_text(size = 28),
+    legend.text = element_text(size = 28),
+    axis.title = element_text(size = 36))+
+  labs(x = '', y = "Cohen's kappa") +
+  scale_x_discrete(labels = c(
+    "CORAL" = "coral",
+    "MCO" = "leathery macroalgae",
+    "SUB" = "substrate",
+    "MFL" = "filamentous macroalgae",
+    "TURF" = "TURF",
+    "ZOANT" = "zoanthids",
+    "MFC" = "foliaceous macroalgae",
+    "MCR" = "crustose macroalgae",
+    "Total" = "total"
+  ))
+
+ggsave("Fig1.eps", fig1, 
+       width = 6.85,
+       height = 7,  
+       units = "in", 
+       device = cairo_ps)  # EPS vetorial
+
+ggsave("Fig1_manuscript_png.png", fig1,
+       width = 6.85,
+       height = 7,
+       units = "in",
+       dpi = 300,
+       scale = 1
+)
+
+
+# output_mfg %>% 
+#   bind_rows(
+#     bind_rows(kappa_psy_exp.aut$confid %>% data.frame() %>% slice(2) %>% rownames_to_column(),
+#               kappa_psy_exp.com$confid %>% data.frame() %>% slice(2) %>% rownames_to_column(),
+#               kappa_psy_aut.com$confid %>% data.frame() %>% slice(2) %>% rownames_to_column()) %>% 
+#       mutate(comparison = c("exp.aut", "exp.com", "aut.com"),
+#              comparison = factor(comparison, levels = c("exp.aut", "exp.com", "aut.com"))) %>% 
+#       select(-rowname) %>% 
+#       mutate(mfg = "Total", Accuracy = NA, AccuracyPValue = NA, McnemarPValue = NA)
+#   ) %>% 
+#   mutate(mfg = factor(mfg, levels = output_mfg %>% 
+#                         group_by(mfg) %>% 
+#                         summarise(mean_k = mean(estimate)) %>% 
+#                         arrange(-mean_k) %>% 
+#                         pull(mfg)%>% 
+#                         c("Total", .))) %>% 
+#   ggplot(aes(x = mfg, y = estimate, color = comparison)) +
+#   geom_point(position=position_dodge(width=0.7), size = 3) + #fill = "lightgray",
+#   geom_errorbar(aes(ymin = lower, ymax = upper), position = position_dodge(width=0.7), width = 0) +
+#   theme_classic() +
+#   labs(x = "")
 
 total_df_mfg <- bind_rows(
   kappa_psy_exp.aut$confid %>% data.frame() %>% slice(2) %>% rownames_to_column(),
@@ -546,142 +811,3 @@ confCN_ac %>%
   geom_text(aes(label = etiqueta), size = 3) +
   theme_classic() +
   scale_fill_gradient2(high = "red", low = "blue")
-
-
-#################################################################
-#################################################################
-
-
-###########################
-# MULTIVAR
-###########################
-
-library(vegan)
-
-# selecting most abundant types of cover
-tipos <- all_wide %>% 
-  data.frame() %>% 
-  select(ARC:CAUC) %>% 
-  colSums() %>% 
-  data.frame() %>% 
-  arrange(-.) %>% 
-  rownames_to_column("tipo") %>% 
-  filter(`.` > 5) %>% 
-  pull(tipo)
-
-#
-wide_red <- all_wide %>% 
-  rownames_to_column("id") %>% 
-  select(id:Name, tipos, -WAND)
-
-# wide_red %>% 
-#   data.frame() %>% 
-#   select(-id:-Name) %>% 
-#   rowSums() %>% summary()
-
-# arcsine of the column
-asin(sqrt(data$col1))
-asin(sqrt(data$col3))
-
-euc_plus5 <- wide_red %>% 
-  data.frame() %>% 
-  select(-id:-Name) %>%
-  vegdist(method = "euclidean", binary = FALSE) %>% 
-  metaMDS(trymax = 100)
-
-nmds <- euc_plus5$points %>%
-  data.frame() %>%
-  bind_cols(source = all_wide$source)
-
-# polygon
-hullSR <- nmds %>%
-  group_by(source) %>% 
-  dplyr::slice(chull(MDS1, MDS2))
-
-# plot
-ggplot() +
-  geom_point(data = nmds, aes(MDS1, MDS2, color = source), size = 1) + #, shape = subregion
-  scale_shape_manual(values = c(1, 21:25)) +
-  geom_point(data = hullSR, aes(MDS1, MDS2), shape = 3, size = 2) +
-  # geom_text(data = hullSR, aes(MDS1, MDS2, label = row.names(sp)), vjust = -1) +
-  # geom_segment(data = yz %>% slice(2:4), 
-  #              aes(x = 0, y = 0, xend = RDA1, yend = RDA2), 
-  #              arrow = arrow(angle = 22.5, length = unit(0.35,"cm"), type = "closed"), 
-  #              linetype = 1, size = 0.6, colour = "blue") +
-  # geom_segment(data = yz %>% slice(1, 5:7), 
-  #              aes(x = 0, y = 0, xend = RDA1, yend = RDA2), 
-  #              arrow = arrow(angle = 22.5, length = unit(0.3,"cm"), type = "closed"), 
-  #              linetype = 2, size = 0.6, colour = "black") +
-  # geom_text_repel(data = yz, aes(RDA1, RDA2, label = row.names(yz)), label.padding = 0.25) +
-  # labs(x = paste("RDA 1 (", format(100 *ii$concont[[1]][2,1], digits=4), "%)", sep=""),
-  #      y = paste("RDA 2 (", format(100 *ii$concont[[1]][2,2], digits=4), "%)", sep=""))+
-  # guides(shape=guide_legend(title=NULL,color="black"),
-  #        fill=guide_legend(title=NULL))+
-  theme_bw() +
-  geom_polygon(data = hullSR, aes(x = MDS1, y = MDS2, fill = source, color = source), alpha = 0.3, linetype = 2) +
-  theme(panel.grid = element_blank()) +
-  scale_color_manual(values = c('#1b9e77','#d95f02','#7570b3','#e7298a','#66a61e','#e6ab02')) +
-  scale_fill_manual(values = c('#1b9e77','#d95f02','#7570b3','#e7298a','#66a61e','#e6ab02'))
-
-
-#### PERMDISP ####
-# FAZER PRIMEIRO PERMDISP PRA VER SE TEM DISPERSAO ENTRE GRUPOS, SE NAO TIVER, PODE USAR PERMANOVA
-# https://www.rdocumentation.org/packages/vegan/versions/2.4-2/topics/betadisper
-
-## Euclidian distances between samples
-dis <- vegdist(wide_red %>% data.frame() %>% select(TFL:DICT), method = "euclidian")
-groups <- wide_red$source
-
-## Calculate multivariate dispersions
-mod <- betadisper(dis, groups)
-
-## Perform test
-anova(mod)
-
-## Permutation test for F
-permutest(mod, pairwise = TRUE, permutations = 999)
-
-## Tukey's Honest Significant Differences
-(mod.HSD <- TukeyHSD(mod))
-plot(mod.HSD)
-
-## Plot the groups and distances to centroids on the
-## first two PCoA axes
-plot(mod)
-
-## with data ellipses instead of hulls
-plot(mod, ellipse = TRUE, hull = FALSE) # 1 sd data ellipse
-plot(mod, ellipse = TRUE, hull = FALSE, conf = 0.90) # 90% data ellipse
-
-## can also specify which axes to plot, ordering respected
-plot(mod, axes = c(3,1), seg.col = "forestgreen", seg.lty = "dashed")
-
-## Draw a boxplot of the distances to centroid for each group
-boxplot(mod)
-
-## Using group centroids
-mod3 <- betadisper(dis, groups, type = "centroid")
-mod3
-permutest(mod3, permutations = 99)
-anova(mod3)
-plot(mod3)
-boxplot(mod3)
-plot(TukeyHSD(mod3))
-
-# SEM DISPERSAO MULTIVARIADA, PASSEMOS A PERMANOVA
-
-#### PERMANOVA ####
-
-## Euclidian distances between samples
-devtools::install_github("pmartinezarbizu/pairwiseAdonis/pairwiseAdonis")
-perm_label <- adonis(wide_red %>% data.frame() %>% select(TFL:DICT) ~ source, wide_red, permutations = 999, method = "euclidian")
-perm_label$f.perms %>% hist(las=1)
-
-## post hoc
-
-# install.packages('devtools')
-# library(devtools)
-# install_github("pmartinezarbizu/pairwiseAdonis/pairwiseAdonis")
-
-library(pairwiseAdonis)
-pairwise.adonis2(wide_red %>% data.frame() %>% select(TFL:DICT) ~ source, data = wide_red)
