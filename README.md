@@ -22,7 +22,7 @@ Contains the datasets used in the analyses.
   Annotations produced by the automated (machine learning–based) annotator.
 
 - `image_quality.xlsx`  
-  Presence and absence of image imperfections used to estimate image quality.
+  Quantitative metrics and presence and absence image imperfections used to estimate image quality.
 
 - `all_expert_annotations.xlsx`  
   All expert annotations from both training and evaluation sets, used to calculate benthic organism coverage.
