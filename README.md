@@ -32,6 +32,9 @@ Contains the datasets used in the analyses.
 ### 📁 script/
 R script used to perform the analyses.
 
+- `quantitative_image_quality.R`  
+    - Extracting quantitative metrics os image-quality imperfections
+ 
 - `HumansVSMachines_analyses.R`  
     - Data filtering, label harmonization, and dataset preparation;  
     - Calculation of annotator performance;  
